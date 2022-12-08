@@ -24,7 +24,7 @@ const client = new Client({
     ] 
 });
 
-const { Captcha, CaptchaGenerator } = require('captcha-canvas');
+const Captcha = require("@haileybot/captcha-generator");
 
 var guild;
 
@@ -172,18 +172,12 @@ client.on('interactionCreate', async (interaction) => {
         ephemeral: true
     });
 
-    const captcha = new CaptchaGenerator()
-    .setDimension(150, 450) 
-    .setDecoy({total: 15, opacity: 0.7, size: 35})
-    .setCaptcha({size: 60, color: "#7875ff"})
-    .setTrace({color: '#7875ff'})
+    let captcha = new Captcha();
 
-    const buffer = captcha.generateSync();
 
     interaction.reply({
         content: '> \r\n> Re-type the captcha below to gain access to the server.',
-        files: [{attachment: buffer}],
-        fetchReply: true,
+        files: [{attachment: captcha.JPEGStream}],
         ephemeral: true
     })
     .then(() => {
@@ -201,7 +195,7 @@ client.on('interactionCreate', async (interaction) => {
             
             i++;
 
-            if (m.content == captcha.text) {   
+            if (m.content == captcha.value) {   
                 interaction.member.roles.add(memberRole).catch();
                 interaction.followUp({
                     content: `> \r\n> Code correct, you may now access the Nix server.\r\n> ‎`,
@@ -240,13 +234,6 @@ client.on('interactionCreate', async (interaction) => {
   else if (commandName === 'admin') {
     if (user.id !== styx_id) return interaction.reply({content: '> \r\n> You do not have permission to run this command.\r\n> ‎', ephemeral: true});
     
-
-    const captcha = new CaptchaGenerator()
-    .setDimension(150, 450) 
-    .setDecoy({total: 10, opacity: 0.8, size: 30})
-    .setCaptcha({size: 60, color: "#7875ff"})
-    .setTrace({color: '#7875ff'})
-
     const row = new DiscordJS.ActionRowBuilder()
     .addComponents(
         new DiscordJS.ButtonBuilder()
